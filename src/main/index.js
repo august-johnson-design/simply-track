@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { getDb, closeDb } from './db/index.js'
 import { createUser, verifyLogin, hasAnyUser } from './auth/auth.js'
+import { ensureDefaultTemplate, getDefaultTemplate, getTemplate } from './templates/templates.js'
+import { createEntry, listEntries, getEntry, updateEntry, deleteEntry } from './entries/entries.js'
 
 const isDev = !app.isPackaged
 
@@ -50,10 +52,63 @@ function registerIpcHandlers() {
     }
     return verifyLogin(username, password)
   })
+
+  ipcMain.handle('templates:getDefault', () => getDefaultTemplate())
+
+  ipcMain.handle('entries:create', (_event, { templateId, data, createdBy } = {}) => {
+    const validationError = validateEntryData(templateId, data)
+    if (validationError) {
+      return { success: false, error: validationError }
+    }
+    return { success: true, entry: createEntry({ templateId, data, createdBy }) }
+  })
+
+  ipcMain.handle('entries:list', () => listEntries())
+
+  ipcMain.handle('entries:get', (_event, id) => getEntry(id))
+
+  ipcMain.handle('entries:update', (_event, { id, templateId, data } = {}) => {
+    const validationError = validateEntryData(templateId, data)
+    if (validationError) {
+      return { success: false, error: validationError }
+    }
+    const entry = updateEntry(id, data)
+    if (!entry) {
+      return { success: false, error: 'Entry not found.' }
+    }
+    return { success: true, entry }
+  })
+
+  ipcMain.handle('entries:delete', (_event, id) => ({ success: deleteEntry(id) }))
+}
+
+// Checks the entry data against its template's required fields (the
+// template referenced by templateId, or the default template if none was
+// given). Falls back to just requiring a non-empty `name` if no template can
+// be found at all, so entry creation still works without a template.
+function validateEntryData(templateId, data) {
+  if (!data || typeof data !== 'object') {
+    return 'Entry data is required.'
+  }
+
+  const template = (templateId ? getTemplate(templateId) : null) ?? getDefaultTemplate()
+  const requiredFields = template?.field_schema?.filter((field) => field.required) ?? [
+    { key: 'name', label: 'Name' }
+  ]
+
+  for (const field of requiredFields) {
+    const value = data[field.key]
+    if (typeof value !== 'string' || !value.trim()) {
+      return `${field.label} is required.`
+    }
+  }
+
+  return null
 }
 
 app.whenReady().then(() => {
   getDb() // opens the local database and applies schema on startup
+  ensureDefaultTemplate()
   registerIpcHandlers()
   createWindow()
 

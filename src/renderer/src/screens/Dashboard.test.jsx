@@ -1,10 +1,24 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Dashboard from './Dashboard.jsx'
 
 describe('Dashboard', () => {
+  beforeEach(() => {
+    window.api = {
+      templates: {
+        getDefault: vi.fn().mockResolvedValue({
+          id: 1,
+          field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
+        })
+      },
+      entries: {
+        create: vi.fn()
+      }
+    }
+  })
+
   it('shows the logged-in username and defaults to the Search section', () => {
     render(<Dashboard user={{ id: 1, username: 'alice' }} onLogout={vi.fn()} />)
 
@@ -17,7 +31,7 @@ describe('Dashboard', () => {
     render(<Dashboard user={{ id: 1, username: 'alice' }} onLogout={vi.fn()} />)
 
     await user.click(screen.getByRole('button', { name: 'New Entry' }))
-    expect(screen.getByText(/intake form for creating a new entry/i)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/^name/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Forms' }))
     expect(screen.getByText(/build custom fields/i)).toBeInTheDocument()

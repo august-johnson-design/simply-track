@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import NewEntryForm from './NewEntryForm.jsx'
 import '../styles/dashboard.css'
 
 const SECTIONS = [
@@ -36,9 +37,7 @@ export default function Dashboard({ user, onLogout }) {
         {activeSection === 'search' && (
           <p>Search across every stored field, including repeat/duplicate entries. Coming in Phase 3.</p>
         )}
-        {activeSection === 'new-entry' && (
-          <p>Intake form for creating a new entry, using whichever template you pick. Coming in Phase 2.</p>
-        )}
+        {activeSection === 'new-entry' && <NewEntryForm user={user} />}
         {activeSection === 'forms' && (
           <p>Build custom fields and save/manage form templates here. Coming in Phase 4.</p>
         )}
