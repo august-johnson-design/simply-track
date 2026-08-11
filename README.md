@@ -31,7 +31,7 @@ A desktop-first client/data tracking app for small, locally owned businesses. Ru
 
 Settled for now, revisit if requirements change:
 
-1. **Database: SQLite, not PostgreSQL.** The audience is non-technical small-business owners installing a desktop app with no IT support. Postgres means either bundling a portable binary and managing a background process, or requiring Docker — both add moving parts that can fail silently on someone's machine with no one around to debug it. SQLite is a single file, ships embedded in Node via `better-sqlite3`, needs no service to start/stop, and backup is just "copy the file." If we ever need multi-user/server mode (e.g. a shared office database), Postgres is the natural upgrade path then — not before.
+1. **Database: SQLite, not PostgreSQL.** The audience is non-technical small-business owners installing a desktop app with no IT support. Postgres means either bundling a portable binary and managing a background process, or requiring Docker — both add moving parts that can fail silently on someone's machine with no one around to debug it. SQLite is a single file, ships embedded in Node via `better-sqlite3` (v13+, which uses Node-API — a prebuilt binary that works across Node and Electron versions with no rebuild step), needs no service to start/stop, and backup is just "copy the file." If we ever need multi-user/server mode (e.g. a shared office database), Postgres is the natural upgrade path then — not before.
 2. **Auth model: local hashed-password table.** Username + password stored locally, hashed with bcrypt/argon2. No OS keychain integration for now — simplest, no OS-specific code.
 3. **Custom fields storage: JSON column, not EAV.** A `data` JSON column on the entries table beats an EAV (`entry_id`/`field_name`/`field_value`) table — no sprawling joins, and each template's field shape stays self-contained. SQLite queries JSON via its built-in JSON1 functions (`json_extract`, etc.), same idea as Postgres `JSONB`, just without the native indexed type — we'll add generated columns or indexes on the specific fields we search often.
 
@@ -73,12 +73,15 @@ This keeps templates flexible (each one defines its own set of custom fields) wh
 
 ## Getting started
 
-_To be filled in once Phase 1 scaffolding lands._
+- `npm install`
+- `npm run dev` — starts the app.
+
+Lifecycle scripts are disabled (see `.npmrc`) to dodge a known npm bug where any dependency containing a `binding.gyp` file gets an unwanted, and unnecessary, `node-gyp rebuild` forced on it during install (npm/cli#5234) — `better-sqlite3` ships working prebuilt binaries and doesn't need it. This also means Electron's own binary doesn't auto-download on `npm install`; the `dev`/`build`/`preview`/`start` scripts handle that themselves (`node node_modules/electron/install.js && ...`), so a plain `npm install` is still all you need before running any of them.
 
 ## Testing
 
 - `npm test` — runs the full suite once. `npm run test:watch` — watch mode.
-- Tests run via `vitest`, but through Electron's own Node runtime (`ELECTRON_RUN_AS_NODE=1`), not plain system Node. `better-sqlite3` gets rebuilt for Electron's Node ABI on every `npm install` (see `postinstall` in package.json), so plain Node can't load it — running tests through Electron's runtime keeps everything on one consistent ABI.
+- Tests run under plain `vitest`/Node — no Electron runtime needed, since `better-sqlite3`'s prebuilt Node-API binary works the same way under both.
 - Main-process tests (`src/main/**/*.test.js`) exercise the real SQLite database against a temp file per test, with `electron`'s `app.getPath` mocked to point at it.
 - Renderer tests (`src/renderer/**/*.test.jsx`) use `@testing-library/react` in a jsdom environment (opted into per-file via a `// @vitest-environment jsdom` docblock), with `window.api` mocked.
 

@@ -7,30 +7,27 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "preview": "electron-vite preview",
-    "start": "electron-vite preview",
-    "postinstall": "electron-rebuild -f -w better-sqlite3",
-    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron ./node_modules/vitest/vitest.mjs run",
-    "test:watch": "cross-env ELECTRON_RUN_AS_NODE=1 electron ./node_modules/vitest/vitest.mjs"
+    "dev": "node node_modules/electron/install.js && electron-vite dev",
+    "build": "node node_modules/electron/install.js && electron-vite build",
+    "preview": "node node_modules/electron/install.js && electron-vite preview",
+    "start": "node node_modules/electron/install.js && electron-vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.3.0",
+    "better-sqlite3": "^13.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.2.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.3",
     "@vitejs/plugin-react": "^5.2.0",
-    "cross-env": "^10.1.0",
     "electron": "^43.4.0",
     "electron-vite": "^5.0.0",
-    "jsdom": "^30.0.1",
+    "jsdom": "^29.1.1",
     "vite": "^6.0.5",
     "vitest": "^4.1.10"
   }
