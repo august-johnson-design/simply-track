@@ -1,0 +1,27 @@
+node_modules/
+out/
+dist/
+dist-electron/
+release/
+
+# local sqlite database files (real client data must never be committed)
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# logs
+npm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+
+# env
+.env
+.env.local
