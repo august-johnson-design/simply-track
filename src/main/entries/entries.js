@@ -49,3 +49,33 @@ export function deleteEntry(id) {
   const result = db.prepare('DELETE FROM entries WHERE id = ?').run(id)
   return result.changes > 0
 }
+
+// Keyword search across every field value in every entry (not just a fixed
+// set of columns) — matches the requirement that any field, on any entry,
+// including repeat/duplicate clients, is searchable and returns the full
+// entry, not a snippet. Uses json_each to check each value in the entry's
+// data object individually, so a match on any one field is enough; this
+// also means a search only ever matches field *values*, never JSON syntax
+// or key names.
+export function searchEntries(keyword) {
+  const trimmed = (keyword ?? '').trim()
+  if (!trimmed) return []
+
+  const db = getDb()
+  // Escape the user's own %, _, and \ so they're treated as literal
+  // characters rather than LIKE wildcards.
+  const escaped = trimmed.replace(/[\\%_]/g, (char) => `\\${char}`)
+  const pattern = `%${escaped}%`
+
+  return db
+    .prepare(
+      `SELECT * FROM entries
+       WHERE EXISTS (
+         SELECT 1 FROM json_each(entries.data)
+         WHERE value LIKE ? ESCAPE '\\'
+       )
+       ORDER BY created_at DESC, id DESC`
+    )
+    .all(pattern)
+    .map(deserialize)
+}

@@ -11,6 +11,16 @@ describe('App', () => {
         hasAnyUser: vi.fn(),
         createFirstUser: vi.fn(),
         login: vi.fn()
+      },
+      templates: {
+        getDefault: vi.fn().mockResolvedValue({
+          id: 1,
+          field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
+        })
+      },
+      entries: {
+        list: vi.fn().mockResolvedValue([]),
+        search: vi.fn().mockResolvedValue([])
       }
     }
   })

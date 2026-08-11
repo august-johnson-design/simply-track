@@ -14,16 +14,18 @@ describe('Dashboard', () => {
         })
       },
       entries: {
-        create: vi.fn()
+        create: vi.fn(),
+        list: vi.fn().mockResolvedValue([]),
+        search: vi.fn().mockResolvedValue([])
       }
     }
   })
 
-  it('shows the logged-in username and defaults to the Search section', () => {
+  it('shows the logged-in username and defaults to the Search section', async () => {
     render(<Dashboard user={{ id: 1, username: 'alice' }} onLogout={vi.fn()} />)
 
     expect(screen.getByText('alice')).toBeInTheDocument()
-    expect(screen.getByText(/search across every stored field/i)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/search entries/i)).toBeInTheDocument()
   })
 
   it('switches sections when a nav tab is clicked', async () => {

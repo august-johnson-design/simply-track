@@ -1,0 +1,66 @@
+.entry-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.entry-card-fields {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  row-gap: 8px;
+  column-gap: 12px;
+  margin: 0;
+}
+
+.entry-card-field {
+  display: contents;
+}
+
+.entry-card-field dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.entry-card-field dd {
+  margin: 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.entry-card-empty {
+  color: var(--color-text-muted);
+}
+
+.entry-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.entry-card-actions button {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: 13px;
+}
+
+.entry-card-actions button[type='submit'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.entry-card-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.entry-card-editing {
+  display: flex;
+  flex-direction: column;
+}

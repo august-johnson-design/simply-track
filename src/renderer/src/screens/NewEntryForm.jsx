@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
+import EntryFieldInputs, { emptyValuesFor } from '../components/EntryFieldInputs.jsx'
 import '../styles/entry-form.css'
 
-// Renders whatever fields the template defines — nothing here is hardcoded
-// to "Name/Phone/Email/Notes". Phase 4's form builder only needs to change
-// what's in the template's field_schema; this component doesn't change.
 export default function NewEntryForm({ user }) {
   const [template, setTemplate] = useState(null)
   const [values, setValues] = useState({})
@@ -57,30 +55,7 @@ export default function NewEntryForm({ user }) {
 
   return (
     <form className="entry-form" onSubmit={handleSubmit}>
-      {template?.field_schema?.map((field) => (
-        <div className="entry-form-field" key={field.key}>
-          <label htmlFor={field.key}>
-            {field.label}
-            {field.required && <span className="entry-form-required"> *</span>}
-          </label>
-          {field.type === 'textarea' ? (
-            <textarea
-              id={field.key}
-              value={values[field.key] ?? ''}
-              onChange={(event) => handleChange(field.key, event.target.value)}
-              required={field.required}
-            />
-          ) : (
-            <input
-              id={field.key}
-              type="text"
-              value={values[field.key] ?? ''}
-              onChange={(event) => handleChange(field.key, event.target.value)}
-              required={field.required}
-            />
-          )}
-        </div>
-      ))}
+      <EntryFieldInputs fieldSchema={template?.field_schema} values={values} onChange={handleChange} />
 
       {error && <p className="entry-form-error">{error}</p>}
       {status === 'success' && <p className="entry-form-success">Entry saved.</p>}
@@ -90,12 +65,4 @@ export default function NewEntryForm({ user }) {
       </button>
     </form>
   )
-}
-
-function emptyValuesFor(template) {
-  const values = {}
-  template?.field_schema?.forEach((field) => {
-    values[field.key] = ''
-  })
-  return values
 }

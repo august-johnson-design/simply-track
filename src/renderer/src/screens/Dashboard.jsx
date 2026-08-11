@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import SearchPanel from './SearchPanel.jsx'
 import NewEntryForm from './NewEntryForm.jsx'
 import '../styles/dashboard.css'
 
@@ -34,9 +35,7 @@ export default function Dashboard({ user, onLogout }) {
       </nav>
 
       <main className="dashboard-content">
-        {activeSection === 'search' && (
-          <p>Search across every stored field, including repeat/duplicate entries. Coming in Phase 3.</p>
-        )}
+        {activeSection === 'search' && <SearchPanel />}
         {activeSection === 'new-entry' && <NewEntryForm user={user} />}
         {activeSection === 'forms' && (
           <p>Build custom fields and save/manage form templates here. Coming in Phase 4.</p>

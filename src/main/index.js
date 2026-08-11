@@ -3,7 +3,14 @@ import { join } from 'path'
 import { getDb, closeDb } from './db/index.js'
 import { createUser, verifyLogin, hasAnyUser } from './auth/auth.js'
 import { ensureDefaultTemplate, getDefaultTemplate, getTemplate } from './templates/templates.js'
-import { createEntry, listEntries, getEntry, updateEntry, deleteEntry } from './entries/entries.js'
+import {
+  createEntry,
+  listEntries,
+  getEntry,
+  updateEntry,
+  deleteEntry,
+  searchEntries
+} from './entries/entries.js'
 
 const isDev = !app.isPackaged
 
@@ -80,6 +87,8 @@ function registerIpcHandlers() {
   })
 
   ipcMain.handle('entries:delete', (_event, id) => ({ success: deleteEntry(id) }))
+
+  ipcMain.handle('entries:search', (_event, keyword) => searchEntries(keyword))
 }
 
 // Checks the entry data against its template's required fields (the

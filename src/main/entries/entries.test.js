@@ -93,4 +93,79 @@ describe('entries', () => {
   it('deleteEntry returns false for an unknown id', () => {
     expect(entries.deleteEntry(999)).toBe(false)
   })
+
+  describe('searchEntries', () => {
+    beforeEach(() => {
+      entries.createEntry({
+        templateId,
+        data: { name: 'Alice Anderson', phone: '555-0100', notes: '' },
+        createdBy: userId
+      })
+      entries.createEntry({
+        templateId,
+        data: { name: 'Bob Baker', phone: '555-0200', notes: 'called re: alice referral' },
+        createdBy: userId
+      })
+      entries.createEntry({
+        templateId,
+        data: { name: 'Carol Cole', phone: '555-0300', notes: '' },
+        createdBy: userId
+      })
+    })
+
+    it('matches on any field, not just name', () => {
+      const results = entries.searchEntries('555-0200')
+      expect(results.map((entry) => entry.data.name)).toEqual(['Bob Baker'])
+    })
+
+    it('matches a value that only appears in a different entry\'s notes field', () => {
+      const results = entries.searchEntries('alice')
+      const names = results.map((entry) => entry.data.name).sort()
+      expect(names).toEqual(['Alice Anderson', 'Bob Baker'])
+    })
+
+    it('is case-insensitive', () => {
+      const results = entries.searchEntries('ALICE ANDERSON')
+      expect(results.map((entry) => entry.data.name)).toEqual(['Alice Anderson'])
+    })
+
+    it('is a partial match, not exact', () => {
+      const results = entries.searchEntries('and')
+      expect(results.map((entry) => entry.data.name)).toEqual(['Alice Anderson'])
+    })
+
+    it('returns the entire entry for each match, not a snippet', () => {
+      const [result] = entries.searchEntries('555-0100')
+      expect(result.data).toEqual({ name: 'Alice Anderson', phone: '555-0100', notes: '' })
+      expect(result).toHaveProperty('id')
+      expect(result).toHaveProperty('created_at')
+    })
+
+    it('returns every matching entry, including repeat clients with identical data', () => {
+      entries.createEntry({ templateId, data: { name: 'Dana Diaz', phone: '555-0400' }, createdBy: userId })
+      entries.createEntry({ templateId, data: { name: 'Dana Diaz', phone: '555-0400' }, createdBy: userId })
+
+      const results = entries.searchEntries('Dana Diaz')
+      expect(results).toHaveLength(2)
+    })
+
+    it('returns an empty array for no matches', () => {
+      expect(entries.searchEntries('nonexistent-keyword')).toEqual([])
+    })
+
+    it('returns an empty array for a blank or whitespace-only keyword', () => {
+      expect(entries.searchEntries('')).toEqual([])
+      expect(entries.searchEntries('   ')).toEqual([])
+    })
+
+    it('treats % and _ in the keyword as literal characters, not SQL LIKE wildcards', () => {
+      entries.createEntry({ templateId, data: { name: 'Weird%Name' }, createdBy: userId })
+
+      // If '%' weren't escaped, this would act as a wildcard and match every
+      // entry in the database instead of just the one that literally
+      // contains a '%' character.
+      const results = entries.searchEntries('%')
+      expect(results.map((entry) => entry.data.name)).toEqual(['Weird%Name'])
+    })
+  })
 })

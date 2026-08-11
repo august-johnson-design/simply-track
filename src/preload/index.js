@@ -16,7 +16,8 @@ const api = {
     list: () => ipcRenderer.invoke('entries:list'),
     get: (id) => ipcRenderer.invoke('entries:get', id),
     update: (payload) => ipcRenderer.invoke('entries:update', payload),
-    delete: (id) => ipcRenderer.invoke('entries:delete', id)
+    delete: (id) => ipcRenderer.invoke('entries:delete', id),
+    search: (keyword) => ipcRenderer.invoke('entries:search', keyword)
   }
 }
 
