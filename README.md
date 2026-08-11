@@ -75,6 +75,13 @@ This keeps templates flexible (each one defines its own set of custom fields) wh
 
 _To be filled in once Phase 1 scaffolding lands._
 
+## Testing
+
+- `npm test` — runs the full suite once. `npm run test:watch` — watch mode.
+- Tests run via `vitest`, but through Electron's own Node runtime (`ELECTRON_RUN_AS_NODE=1`), not plain system Node. `better-sqlite3` gets rebuilt for Electron's Node ABI on every `npm install` (see `postinstall` in package.json), so plain Node can't load it — running tests through Electron's runtime keeps everything on one consistent ABI.
+- Main-process tests (`src/main/**/*.test.js`) exercise the real SQLite database against a temp file per test, with `electron`'s `app.getPath` mocked to point at it.
+- Renderer tests (`src/renderer/**/*.test.jsx`) use `@testing-library/react` in a jsdom environment (opted into per-file via a `// @vitest-environment jsdom` docblock), with `window.api` mocked.
+
 ## Contributing / workflow
 
 - Commit early and often, using conventional commit messages (`type(scope): summary`) per the `commit-message` skill.
