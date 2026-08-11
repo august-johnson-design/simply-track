@@ -6,6 +6,7 @@ import SearchPanel from './SearchPanel.jsx'
 
 const TEMPLATE = {
   id: 1,
+  is_default: 1,
   field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
 }
 
@@ -15,7 +16,7 @@ const SEARCH_RESULT = { id: 2, template_id: 1, data: { name: 'Bob Baker' } }
 describe('SearchPanel', () => {
   beforeEach(() => {
     window.api = {
-      templates: { getDefault: vi.fn().mockResolvedValue(TEMPLATE) },
+      templates: { list: vi.fn().mockResolvedValue([TEMPLATE]) },
       entries: {
         list: vi.fn().mockResolvedValue([RECENT_ENTRY]),
         search: vi.fn().mockResolvedValue([SEARCH_RESULT]),
@@ -71,6 +72,24 @@ describe('SearchPanel', () => {
     await user.type(screen.getByLabelText(/search entries/i), 'nobody')
 
     expect(await screen.findByText(/no matching entries/i)).toBeInTheDocument()
+  })
+
+  it("renders each result using its own entry's template, not always the default", async () => {
+    const otherTemplate = {
+      id: 2,
+      is_default: 0,
+      field_schema: [{ key: 'company', label: 'Company', type: 'text', required: true }]
+    }
+    const otherEntry = { id: 3, template_id: 2, data: { company: 'Acme Co' } }
+    window.api.templates.list.mockResolvedValue([TEMPLATE, otherTemplate])
+    window.api.entries.list.mockResolvedValue([RECENT_ENTRY, otherEntry])
+
+    render(<SearchPanel />)
+
+    expect(await screen.findByText('Alice Anderson')).toBeInTheDocument()
+    expect(screen.getByText('Name')).toBeInTheDocument()
+    expect(screen.getByText('Acme Co')).toBeInTheDocument()
+    expect(screen.getByText('Company')).toBeInTheDocument()
   })
 
   it('removes an entry from the results when it is deleted', async () => {

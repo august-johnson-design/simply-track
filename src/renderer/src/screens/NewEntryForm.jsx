@@ -3,7 +3,8 @@ import EntryFieldInputs, { emptyValuesFor } from '../components/EntryFieldInputs
 import '../styles/entry-form.css'
 
 export default function NewEntryForm({ user }) {
-  const [template, setTemplate] = useState(null)
+  const [templates, setTemplates] = useState([])
+  const [templateId, setTemplateId] = useState(null)
   const [values, setValues] = useState({})
   const [error, setError] = useState('')
   const [status, setStatus] = useState('loading') // loading | idle | submitting | success
@@ -11,10 +12,12 @@ export default function NewEntryForm({ user }) {
   useEffect(() => {
     let cancelled = false
 
-    window.api.templates.getDefault().then((loadedTemplate) => {
+    window.api.templates.list().then((loadedTemplates) => {
       if (cancelled) return
-      setTemplate(loadedTemplate)
-      setValues(emptyValuesFor(loadedTemplate))
+      const initial = loadedTemplates.find((t) => t.is_default) ?? loadedTemplates[0] ?? null
+      setTemplates(loadedTemplates)
+      setTemplateId(initial?.id ?? null)
+      setValues(emptyValuesFor(initial))
       setStatus('idle')
     })
 
@@ -22,6 +25,17 @@ export default function NewEntryForm({ user }) {
       cancelled = true
     }
   }, [])
+
+  const template = templates.find((t) => t.id === templateId) ?? null
+
+  function handleTemplateChange(event) {
+    const nextId = Number(event.target.value)
+    const nextTemplate = templates.find((t) => t.id === nextId) ?? null
+    setTemplateId(nextTemplate?.id ?? null)
+    setValues(emptyValuesFor(nextTemplate))
+    setError('')
+    if (status === 'success') setStatus('idle')
+  }
 
   function handleChange(key, value) {
     setValues((prev) => ({ ...prev, [key]: value }))
@@ -34,7 +48,7 @@ export default function NewEntryForm({ user }) {
     setStatus('submitting')
 
     const result = await window.api.entries.create({
-      templateId: template?.id ?? null,
+      templateId,
       data: values,
       createdBy: user?.id ?? null
     })
@@ -55,6 +69,20 @@ export default function NewEntryForm({ user }) {
 
   return (
     <form className="entry-form" onSubmit={handleSubmit}>
+      {templates.length > 1 && (
+        <div className="entry-form-field">
+          <label htmlFor="entry-form-template">Form</label>
+          <select id="entry-form-template" value={templateId ?? ''} onChange={handleTemplateChange}>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+                {t.is_default ? ' (default)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <EntryFieldInputs fieldSchema={template?.field_schema} values={values} onChange={handleChange} />
 
       {error && <p className="entry-form-error">{error}</p>}

@@ -6,6 +6,8 @@ import NewEntryForm from './NewEntryForm.jsx'
 
 const TEMPLATE = {
   id: 1,
+  name: 'Default Intake',
+  is_default: 1,
   field_schema: [
     { key: 'name', label: 'Name', type: 'text', required: true },
     { key: 'phone', label: 'Phone', type: 'text', required: false },
@@ -17,7 +19,7 @@ describe('NewEntryForm', () => {
   beforeEach(() => {
     window.api = {
       templates: {
-        getDefault: vi.fn().mockResolvedValue(TEMPLATE)
+        list: vi.fn().mockResolvedValue([TEMPLATE])
       },
       entries: {
         create: vi.fn()
@@ -88,5 +90,32 @@ describe('NewEntryForm', () => {
 
     expect(await screen.findByText('Name is required.')).toBeInTheDocument()
     expect(nameInput).toHaveValue('Alice')
+  })
+
+  it('does not show a template picker when only one template exists', async () => {
+    render(<NewEntryForm user={{ id: 1, username: 'alice' }} />)
+
+    await screen.findByLabelText(/^name/i)
+    expect(screen.queryByLabelText(/^form$/i)).not.toBeInTheDocument()
+  })
+
+  it('shows a template picker and switches fields when multiple templates exist', async () => {
+    const user = userEvent.setup()
+    const otherTemplate = {
+      id: 2,
+      name: 'Vendor Intake',
+      is_default: 0,
+      field_schema: [{ key: 'company', label: 'Company', type: 'text', required: true }]
+    }
+    window.api.templates.list.mockResolvedValue([TEMPLATE, otherTemplate])
+
+    render(<NewEntryForm user={{ id: 1, username: 'alice' }} />)
+
+    expect(await screen.findByLabelText(/^name/i)).toBeInTheDocument()
+
+    await user.selectOptions(screen.getByLabelText(/^form$/i), '2')
+
+    expect(screen.queryByLabelText(/^name/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/^company/i)).toBeInTheDocument()
   })
 })

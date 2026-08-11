@@ -13,10 +13,14 @@ describe('App', () => {
         login: vi.fn()
       },
       templates: {
-        getDefault: vi.fn().mockResolvedValue({
-          id: 1,
-          field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
-        })
+        list: vi.fn().mockResolvedValue([
+          {
+            id: 1,
+            name: 'Default Intake',
+            is_default: 1,
+            field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
+          }
+        ])
       },
       entries: {
         list: vi.fn().mockResolvedValue([]),

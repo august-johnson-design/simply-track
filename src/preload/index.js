@@ -9,7 +9,12 @@ const api = {
     login: (credentials) => ipcRenderer.invoke('auth:login', credentials)
   },
   templates: {
-    getDefault: () => ipcRenderer.invoke('templates:getDefault')
+    getDefault: () => ipcRenderer.invoke('templates:getDefault'),
+    list: () => ipcRenderer.invoke('templates:list'),
+    create: (payload) => ipcRenderer.invoke('templates:create', payload),
+    update: (payload) => ipcRenderer.invoke('templates:update', payload),
+    setDefault: (id) => ipcRenderer.invoke('templates:setDefault', id),
+    delete: (id) => ipcRenderer.invoke('templates:delete', id)
   },
   entries: {
     create: (payload) => ipcRenderer.invoke('entries:create', payload),

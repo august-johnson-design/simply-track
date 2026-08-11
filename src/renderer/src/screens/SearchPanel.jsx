@@ -5,14 +5,21 @@ import '../styles/search-panel.css'
 const DEBOUNCE_MS = 250
 
 export default function SearchPanel() {
-  const [template, setTemplate] = useState(null)
+  // Keyed by template id, so each result can render with the field_schema
+  // of the template that actually created it — not always the default
+  // template's, now that more than one template can exist.
+  const [templatesById, setTemplatesById] = useState({})
+  const [defaultTemplate, setDefaultTemplate] = useState(null)
   const [query, setQuery] = useState('')
   const [entries, setEntries] = useState([])
   const [status, setStatus] = useState('loading') // loading | idle
   const debounceRef = useRef(null)
 
   useEffect(() => {
-    window.api.templates.getDefault().then(setTemplate)
+    window.api.templates.list().then((templates) => {
+      setTemplatesById(Object.fromEntries(templates.map((t) => [t.id, t])))
+      setDefaultTemplate(templates.find((t) => t.is_default) ?? null)
+    })
     loadRecent()
 
     return () => clearTimeout(debounceRef.current)
@@ -90,7 +97,10 @@ export default function SearchPanel() {
           <EntryCard
             key={entry.id}
             entry={entry}
-            fieldSchema={template?.field_schema}
+            fieldSchema={
+              (entry.template_id ? templatesById[entry.template_id] : null)?.field_schema ??
+              defaultTemplate?.field_schema
+            }
             onUpdated={handleUpdated}
             onDeleted={handleDeleted}
           />

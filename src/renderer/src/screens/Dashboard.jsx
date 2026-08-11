@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import SearchPanel from './SearchPanel.jsx'
 import NewEntryForm from './NewEntryForm.jsx'
+import TemplateManager from './TemplateManager.jsx'
 import '../styles/dashboard.css'
 
 const SECTIONS = [
@@ -37,9 +38,7 @@ export default function Dashboard({ user, onLogout }) {
       <main className="dashboard-content">
         {activeSection === 'search' && <SearchPanel />}
         {activeSection === 'new-entry' && <NewEntryForm user={user} />}
-        {activeSection === 'forms' && (
-          <p>Build custom fields and save/manage form templates here. Coming in Phase 4.</p>
-        )}
+        {activeSection === 'forms' && <TemplateManager />}
       </main>
     </div>
   )

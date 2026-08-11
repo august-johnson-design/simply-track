@@ -8,10 +8,14 @@ describe('Dashboard', () => {
   beforeEach(() => {
     window.api = {
       templates: {
-        getDefault: vi.fn().mockResolvedValue({
-          id: 1,
-          field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
-        })
+        list: vi.fn().mockResolvedValue([
+          {
+            id: 1,
+            name: 'Default Intake',
+            is_default: 1,
+            field_schema: [{ key: 'name', label: 'Name', type: 'text', required: true }]
+          }
+        ])
       },
       entries: {
         create: vi.fn(),
@@ -36,7 +40,8 @@ describe('Dashboard', () => {
     expect(await screen.findByLabelText(/^name/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Forms' }))
-    expect(screen.getByText(/build custom fields/i)).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /new template/i })).toBeInTheDocument()
+    expect(screen.getByText('Default Intake')).toBeInTheDocument()
   })
 
   it('calls onLogout when the log out button is clicked', async () => {

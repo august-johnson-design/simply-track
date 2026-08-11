@@ -2,7 +2,17 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { getDb, closeDb } from './db/index.js'
 import { createUser, verifyLogin, hasAnyUser } from './auth/auth.js'
-import { ensureDefaultTemplate, getDefaultTemplate, getTemplate } from './templates/templates.js'
+import {
+  ensureDefaultTemplate,
+  getDefaultTemplate,
+  getTemplate,
+  listTemplates,
+  createTemplate,
+  updateTemplate,
+  setDefaultTemplate,
+  deleteTemplate,
+  validateFieldSchema
+} from './templates/templates.js'
 import {
   createEntry,
   listEntries,
@@ -61,6 +71,44 @@ function registerIpcHandlers() {
   })
 
   ipcMain.handle('templates:getDefault', () => getDefaultTemplate())
+
+  ipcMain.handle('templates:list', () => listTemplates())
+
+  ipcMain.handle('templates:create', (_event, { name, fieldSchema } = {}) => {
+    if (typeof name !== 'string' || !name.trim()) {
+      return { success: false, error: 'Template name is required.' }
+    }
+    const schemaError = validateFieldSchema(fieldSchema)
+    if (schemaError) {
+      return { success: false, error: schemaError }
+    }
+    return { success: true, template: createTemplate({ name: name.trim(), fieldSchema }) }
+  })
+
+  ipcMain.handle('templates:update', (_event, { id, name, fieldSchema } = {}) => {
+    if (typeof name !== 'string' || !name.trim()) {
+      return { success: false, error: 'Template name is required.' }
+    }
+    const schemaError = validateFieldSchema(fieldSchema)
+    if (schemaError) {
+      return { success: false, error: schemaError }
+    }
+    const template = updateTemplate(id, { name: name.trim(), fieldSchema })
+    if (!template) {
+      return { success: false, error: 'Template not found.' }
+    }
+    return { success: true, template }
+  })
+
+  ipcMain.handle('templates:setDefault', (_event, id) => {
+    const template = setDefaultTemplate(id)
+    if (!template) {
+      return { success: false, error: 'Template not found.' }
+    }
+    return { success: true, template }
+  })
+
+  ipcMain.handle('templates:delete', (_event, id) => deleteTemplate(id))
 
   ipcMain.handle('entries:create', (_event, { templateId, data, createdBy } = {}) => {
     const validationError = validateEntryData(templateId, data)
