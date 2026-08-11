@@ -98,6 +98,7 @@ export default function TemplateEditor({ initialTemplate, onSave, onCancel }) {
             </label>
             <button
               type="button"
+              className="btn"
               onClick={() => moveField(index, -1)}
               disabled={index === 0}
               aria-label={`Move ${field.label} up`}
@@ -106,30 +107,36 @@ export default function TemplateEditor({ initialTemplate, onSave, onCancel }) {
             </button>
             <button
               type="button"
+              className="btn"
               onClick={() => moveField(index, 1)}
               disabled={index === fields.length - 1}
               aria-label={`Move ${field.label} down`}
             >
               ↓
             </button>
-            <button type="button" onClick={() => removeField(index)} aria-label={`Remove ${field.label}`}>
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={() => removeField(index)}
+              aria-label={`Remove ${field.label}`}
+            >
               Remove
             </button>
           </div>
         ))}
       </div>
 
-      <button type="button" onClick={addField} className="template-editor-add">
+      <button type="button" onClick={addField} className="btn template-editor-add">
         Add field
       </button>
 
-      {error && <p className="entry-form-error">{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
       <div className="template-editor-actions">
-        <button type="submit" disabled={saving}>
+        <button type="submit" className="btn btn-primary" disabled={saving}>
           {saving ? 'Saving…' : 'Save template'}
         </button>
-        <button type="button" onClick={onCancel} disabled={saving}>
+        <button type="button" className="btn" onClick={onCancel} disabled={saving}>
           Cancel
         </button>
       </div>

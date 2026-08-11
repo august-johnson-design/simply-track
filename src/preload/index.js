@@ -23,6 +23,9 @@ const api = {
     update: (payload) => ipcRenderer.invoke('entries:update', payload),
     delete: (id) => ipcRenderer.invoke('entries:delete', id),
     search: (keyword) => ipcRenderer.invoke('entries:search', keyword)
+  },
+  backup: {
+    export: () => ipcRenderer.invoke('backup:export')
   }
 }
 

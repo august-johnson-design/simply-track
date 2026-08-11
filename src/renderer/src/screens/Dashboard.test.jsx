@@ -21,6 +21,9 @@ describe('Dashboard', () => {
         create: vi.fn(),
         list: vi.fn().mockResolvedValue([]),
         search: vi.fn().mockResolvedValue([])
+      },
+      backup: {
+        export: vi.fn()
       }
     }
   })
@@ -42,6 +45,9 @@ describe('Dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Forms' }))
     expect(await screen.findByRole('button', { name: /new template/i })).toBeInTheDocument()
     expect(screen.getByText('Default Intake')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(await screen.findByRole('button', { name: /export backup/i })).toBeInTheDocument()
   })
 
   it('calls onLogout when the log out button is clicked', async () => {

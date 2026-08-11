@@ -12,11 +12,8 @@
   background: var(--color-surface);
 }
 
-.search-panel-status,
-.search-panel-count {
+.search-panel .status-text {
   margin: 14px 0;
-  font-size: 13px;
-  color: var(--color-text-muted);
 }
 
 .search-panel-results {

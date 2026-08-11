@@ -81,13 +81,13 @@ export default function TemplateManager() {
 
   return (
     <div className="template-manager">
-      <button type="button" onClick={startCreate} className="template-manager-new">
+      <button type="button" onClick={startCreate} className="btn btn-primary template-manager-new">
         New template
       </button>
 
-      {error && <p className="entry-form-error">{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
-      {status === 'loading' && <p className="template-manager-status">Loading…</p>}
+      {status === 'loading' && <p className="status-text">Loading…</p>}
 
       {status === 'idle' && (
         <ul className="template-manager-list">
@@ -101,16 +101,20 @@ export default function TemplateManager() {
                 </span>
               </div>
               <div className="template-manager-row-actions">
-                <button type="button" onClick={() => startEdit(template)}>
+                <button type="button" className="btn" onClick={() => startEdit(template)}>
                   Edit
                 </button>
                 {!template.is_default && (
-                  <button type="button" onClick={() => handleSetDefault(template.id)}>
+                  <button type="button" className="btn" onClick={() => handleSetDefault(template.id)}>
                     Set default
                   </button>
                 )}
                 {!template.is_default && (
-                  <button type="button" onClick={() => handleDelete(template.id)}>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(template.id)}
+                  >
                     Delete
                   </button>
                 )}

@@ -73,13 +73,13 @@ export default function EntryCard({ entry, fieldSchema, onUpdated, onDeleted }) 
           idPrefix={`entry-${entry.id}-`}
         />
 
-        {error && <p className="entry-form-error">{error}</p>}
+        {error && <p className="form-error">{error}</p>}
 
         <div className="entry-card-actions">
-          <button type="submit" disabled={busy}>
+          <button type="submit" className="btn btn-primary" disabled={busy}>
             {busy ? 'Saving…' : 'Save'}
           </button>
-          <button type="button" onClick={cancelEdit} disabled={busy}>
+          <button type="button" className="btn" onClick={cancelEdit} disabled={busy}>
             Cancel
           </button>
         </div>
@@ -98,13 +98,13 @@ export default function EntryCard({ entry, fieldSchema, onUpdated, onDeleted }) 
         ))}
       </dl>
 
-      {error && <p className="entry-form-error">{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
       <div className="entry-card-actions">
-        <button type="button" onClick={startEdit}>
+        <button type="button" className="btn" onClick={startEdit}>
           Edit
         </button>
-        <button type="button" onClick={handleDelete} disabled={busy}>
+        <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={busy}>
           Delete
         </button>
       </div>

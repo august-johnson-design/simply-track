@@ -66,4 +66,21 @@ describe('db', () => {
     const db = dbModule.getDb()
     expect(() => db.exec(schema)).not.toThrow()
   })
+
+  it('backupDatabaseTo copies the live database, including data, to the destination file', async () => {
+    const db = dbModule.getDb()
+    db.prepare("INSERT INTO users (username, password_hash) VALUES ('tester', 'hash')").run()
+
+    const destPath = path.join(tmpDir, 'backup.sqlite')
+    await dbModule.backupDatabaseTo(destPath)
+
+    expect(fs.existsSync(destPath)).toBe(true)
+
+    const Database = (await import('better-sqlite3')).default
+    const backupDb = new Database(destPath, { readonly: true })
+    const row = backupDb.prepare('SELECT username FROM users').get()
+    backupDb.close()
+
+    expect(row.username).toBe('tester')
+  })
 })

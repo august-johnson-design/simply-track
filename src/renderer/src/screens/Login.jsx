@@ -49,9 +49,9 @@ export default function Login({ onLogin }) {
           required
         />
 
-        {error && <p className="auth-error">{error}</p>}
+        {error && <p className="form-error">{error}</p>}
 
-        <button type="submit" disabled={submitting}>
+        <button type="submit" className="btn btn-primary auth-submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>

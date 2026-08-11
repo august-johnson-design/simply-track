@@ -77,16 +77,16 @@ export default function SearchPanel() {
         aria-label="Search entries"
       />
 
-      {status === 'loading' && <p className="search-panel-status">Searching…</p>}
+      {status === 'loading' && <p className="status-text">Searching…</p>}
 
       {status === 'idle' && entries.length === 0 && (
-        <p className="search-panel-status">
+        <p className="status-text">
           {trimmedQuery ? 'No matching entries.' : 'No entries yet — add one from New Entry.'}
         </p>
       )}
 
       {status === 'idle' && entries.length > 0 && (
-        <p className="search-panel-count">
+        <p className="status-text">
           {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
           {trimmedQuery ? ' found' : ''}
         </p>

@@ -1,0 +1,22 @@
+.settings {
+  max-width: 640px;
+}
+
+.settings-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.settings-section h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+.settings-description {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+  max-width: 480px;
+}

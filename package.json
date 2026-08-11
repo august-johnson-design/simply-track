@@ -12,7 +12,9 @@
     "preview": "node node_modules/electron/install.js && electron-vite preview",
     "start": "node node_modules/electron/install.js && electron-vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "pack": "electron-vite build && electron-builder --dir",
+    "dist": "electron-vite build && electron-builder"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -26,9 +28,36 @@
     "@testing-library/user-event": "^14.6.3",
     "@vitejs/plugin-react": "^5.2.0",
     "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "jsdom": "^29.1.1",
     "vite": "^6.0.5",
     "vitest": "^4.1.10"
+  },
+  "build": {
+    "appId": "com.augustjohnson.simplytrack",
+    "productName": "simply-track",
+    "npmRebuild": false,
+    "files": [
+      "out/**/*"
+    ],
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**/*"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.business",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    }
   }
 }

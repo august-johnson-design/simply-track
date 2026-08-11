@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
-import { getDb, closeDb } from './db/index.js'
+import { getDb, closeDb, backupDatabaseTo } from './db/index.js'
 import { createUser, verifyLogin, hasAnyUser } from './auth/auth.js'
 import {
   ensureDefaultTemplate,
@@ -137,6 +137,26 @@ function registerIpcHandlers() {
   ipcMain.handle('entries:delete', (_event, id) => ({ success: deleteEntry(id) }))
 
   ipcMain.handle('entries:search', (_event, keyword) => searchEntries(keyword))
+
+  ipcMain.handle('backup:export', async (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    const { canceled, filePath } = await dialog.showSaveDialog(window, {
+      title: 'Export Backup',
+      defaultPath: `simply-track-backup-${new Date().toISOString().slice(0, 10)}.sqlite`,
+      filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }]
+    })
+
+    if (canceled || !filePath) {
+      return { success: false, canceled: true }
+    }
+
+    try {
+      await backupDatabaseTo(filePath)
+      return { success: true, path: filePath }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
 }
 
 // Checks the entry data against its template's required fields (the

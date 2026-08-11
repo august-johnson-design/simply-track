@@ -29,3 +29,10 @@ export function closeDb() {
     db = null
   }
 }
+
+// Uses better-sqlite3's built-in online backup API rather than a plain file
+// copy — it's WAL-safe (won't grab a half-written file mid-checkpoint) and
+// works even while the app's own connection stays open.
+export async function backupDatabaseTo(destPath) {
+  await getDb().backup(destPath)
+}

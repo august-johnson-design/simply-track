@@ -67,9 +67,9 @@ This keeps templates flexible (each one defines its own set of custom fields) wh
 - Template picker on new-entry creation
 
 **Phase 5 — Polish**
-- UI pass for clarity/simplicity
-- Packaging/installers for target OS(es)
-- Basic backup/export of the local database
+- UI pass for clarity/simplicity — shared `.btn`/`.btn-primary`/`.btn-danger`/`.form-error`/`.form-success`/`.status-text` classes in `App.css`, replacing per-component styling
+- Packaging/installers for target OS(es) — `electron-builder` config in `package.json` (`npm run pack` for an unpacked dir, `npm run dist` for an installer). Mac → dmg, Windows → nsis, Linux → AppImage. `npmRebuild: false` is required since `better-sqlite3`'s prebuilt Node-API binary doesn't need (or work with) electron-builder's own native-rebuild step.
+- Basic backup/export of the local database — Settings tab → "Export backup" copies the live SQLite file (via `better-sqlite3`'s WAL-safe `.backup()` API, not a plain file copy) to a location you choose via a native save dialog
 
 ## Getting started
 

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import SearchPanel from './SearchPanel.jsx'
 import NewEntryForm from './NewEntryForm.jsx'
 import TemplateManager from './TemplateManager.jsx'
+import Settings from './Settings.jsx'
 import '../styles/dashboard.css'
 
 const SECTIONS = [
   { key: 'search', label: 'Search' },
   { key: 'new-entry', label: 'New Entry' },
-  { key: 'forms', label: 'Forms' }
+  { key: 'forms', label: 'Forms' },
+  { key: 'settings', label: 'Settings' }
 ]
 
 export default function Dashboard({ user, onLogout }) {
@@ -19,7 +21,9 @@ export default function Dashboard({ user, onLogout }) {
         <h1>simply-track</h1>
         <div className="dashboard-user">
           <span>{user?.username}</span>
-          <button onClick={onLogout}>Log out</button>
+          <button className="btn" onClick={onLogout}>
+            Log out
+          </button>
         </div>
       </header>
 
@@ -39,6 +43,7 @@ export default function Dashboard({ user, onLogout }) {
         {activeSection === 'search' && <SearchPanel />}
         {activeSection === 'new-entry' && <NewEntryForm user={user} />}
         {activeSection === 'forms' && <TemplateManager />}
+        {activeSection === 'settings' && <Settings />}
       </main>
     </div>
   )

@@ -64,7 +64,7 @@ export default function NewEntryForm({ user }) {
   }
 
   if (status === 'loading') {
-    return <p className="entry-form-loading">Loading form…</p>
+    return <p className="status-text">Loading form…</p>
   }
 
   return (
@@ -85,10 +85,10 @@ export default function NewEntryForm({ user }) {
 
       <EntryFieldInputs fieldSchema={template?.field_schema} values={values} onChange={handleChange} />
 
-      {error && <p className="entry-form-error">{error}</p>}
-      {status === 'success' && <p className="entry-form-success">Entry saved.</p>}
+      {error && <p className="form-error">{error}</p>}
+      {status === 'success' && <p className="form-success">Entry saved.</p>}
 
-      <button type="submit" disabled={status === 'submitting'}>
+      <button type="submit" className="btn btn-primary" disabled={status === 'submitting'}>
         {status === 'submitting' ? 'Saving…' : 'Save entry'}
       </button>
     </form>
