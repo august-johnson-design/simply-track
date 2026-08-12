@@ -1,0 +1,68 @@
+name: Build installers
+
+# Builds a native installer on each target OS's own runner (dmg on macOS,
+# nsis .exe on Windows, AppImage on Linux) rather than cross-building from a
+# single machine — cross-building a .dmg outside macOS in particular is
+# unreliable, so each OS builds its own.
+#
+# Trigger manually from the Actions tab ("Run workflow") any time you want a
+# fresh set of installers, or push a version tag (e.g. v0.2.0) to build one
+# automatically as part of cutting a release.
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            build-flag: --mac
+            artifact-name: simply-track-mac
+            artifact-glob: dist/*.dmg
+          - os: windows-latest
+            build-flag: --win
+            artifact-name: simply-track-windows
+            artifact-glob: dist/*.exe
+          - os: ubuntu-latest
+            build-flag: --linux
+            artifact-name: simply-track-linux
+            artifact-glob: dist/*.AppImage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # .npmrc sets ignore-scripts=true (works around npm/cli#5234, a
+      # phantom node-gyp rebuild that better-sqlite3's prebuilt binary
+      # doesn't need). That's fine here: electron-vite build doesn't launch
+      # Electron, and electron-builder downloads its own copy of Electron
+      # for the target platform/arch as part of packaging.
+      - run: npm ci
+
+      - run: npm test
+
+      - run: npx electron-vite build
+
+      # No code-signing certificate is configured, so the app ships
+      # unsigned — CSC_IDENTITY_AUTO_DISCOVERY=false stops electron-builder
+      # from trying to auto-detect a signing identity on the macOS runner
+      # and failing when it doesn't find one. Unsigned installers work fine;
+      # the OS will just show an "unidentified developer" warning on first
+      # launch (see README).
+      - run: npx electron-builder ${{ matrix.build-flag }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-glob }}

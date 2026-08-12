@@ -85,6 +85,15 @@ Lifecycle scripts are disabled (see `.npmrc`) to dodge a known npm bug where any
 - Main-process tests (`src/main/**/*.test.js`) exercise the real SQLite database against a temp file per test, with `electron`'s `app.getPath` mocked to point at it.
 - Renderer tests (`src/renderer/**/*.test.jsx`) use `@testing-library/react` in a jsdom environment (opted into per-file via a `// @vitest-environment jsdom` docblock), with `window.api` mocked.
 
+## Building installers for a client's computer
+
+Non-technical users shouldn't run `npm run dev` — they get a real installer instead, built via a GitHub Actions workflow (`.github/workflows/build-installers.yml`):
+
+1. In the repo on GitHub, go to **Actions → Build installers → Run workflow** (or push a version tag like `v0.2.0` to trigger it automatically).
+2. Each of the three OSes builds its own native installer on its own runner (a `.dmg` on macOS, an `.exe` on Windows, an `.AppImage` on Linux) — cross-building a `.dmg` from a non-Mac machine is unreliable, so each platform builds itself.
+3. Once the run finishes, download the installer for the client's OS from the run's **Artifacts** section and send it to them.
+4. The app isn't code-signed (that requires a paid Apple Developer account / Windows signing certificate), so the OS will flag it as unrecognized on first launch. Mac: right-click the app → **Open** → **Open anyway**. Windows: "Windows protected your PC" → **More info** → **Run anyway**. Worth flagging to the client ahead of time.
+
 ## Contributing / workflow
 
 - Commit early and often, using conventional commit messages (`type(scope): summary`) per the `commit-message` skill.
