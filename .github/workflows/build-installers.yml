@@ -25,14 +25,17 @@ jobs:
             build-flag: --mac
             artifact-name: simply-track-mac
             artifact-glob: dist/*.dmg
+            cache-path: ~/Library/Caches/electron-builder
           - os: windows-latest
             build-flag: --win
             artifact-name: simply-track-windows
             artifact-glob: dist/*.exe
+            cache-path: ~\AppData\Local\electron-builder\Cache
           - os: ubuntu-latest
             build-flag: --linux
             artifact-name: simply-track-linux
             artifact-glob: dist/*.AppImage
+            cache-path: ~/.cache/electron-builder
 
     steps:
       - uses: actions/checkout@v4
@@ -52,12 +55,24 @@ jobs:
 
       - run: npx electron-vite build
 
+      # electron-builder downloads its own packaging tools (NSIS, winCodeSign,
+      # etc.) from GitHub on first use and caches them — caching that
+      # directory across runs avoids re-downloading several hundred MB of
+      # tooling every single run, which also cuts down how often a run can
+      # hit a flaky "socket hang up" mid-download on GitHub's network.
+      - uses: actions/cache@v4
+        with:
+          path: ${{ matrix.cache-path }}
+          key: electron-builder-cache-${{ matrix.os }}
+
       # No code-signing certificate is configured, so the app ships
-      # unsigned — CSC_IDENTITY_AUTO_DISCOVERY=false stops electron-builder
-      # from trying to auto-detect a signing identity on the macOS runner
-      # and failing when it doesn't find one. Unsigned installers work fine;
-      # the OS will just show an "unidentified developer" warning on first
-      # launch (see README).
+      # unsigned. CSC_IDENTITY_AUTO_DISCOVERY=false stops electron-builder
+      # from trying to auto-detect a signing identity instead of failing
+      # cleanly when it doesn't find one, and win.signAndEditExecutable:false
+      # (package.json) skips the signtool.exe step on Windows entirely,
+      # since there's no certificate to sign with anyway. Unsigned
+      # installers work fine; the OS just shows an "unidentified developer"
+      # warning on first launch (see README).
       - run: npx electron-builder ${{ matrix.build-flag }} --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
