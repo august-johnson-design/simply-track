@@ -73,9 +73,28 @@ jobs:
       # since there's no certificate to sign with anyway. Unsigned
       # installers work fine; the OS just shows an "unidentified developer"
       # warning on first launch (see README).
-      - run: npx electron-builder ${{ matrix.build-flag }} --publish never
+      #
+      # electron-builder downloads several packaging tools per platform
+      # (NSIS, winCodeSign, app-builder-bin, etc.) beyond Electron itself,
+      # and we've now seen a transient "socket hang up" mid-download on two
+      # separate runs — once on Windows, once on Linux — each time for a
+      # different tool. That points to generic CI network flakiness talking
+      # to GitHub's CDN rather than a config problem, so retry the whole
+      # build command a few times before giving up.
+      - name: Build installer
+        shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          for attempt in 1 2 3; do
+            if npx electron-builder ${{ matrix.build-flag }} --publish never; then
+              exit 0
+            fi
+            echo "electron-builder failed (attempt $attempt/3) — retrying in 20s…"
+            sleep 20
+          done
+          echo "electron-builder failed after 3 attempts."
+          exit 1
 
       - uses: actions/upload-artifact@v4
         with:
